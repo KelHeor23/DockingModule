@@ -175,7 +175,7 @@ inline void cargoTransfer() { // Функция передачи тележки
       curSpeedRotation += widthPulseIterrator;
     servoSetSpeed(servoCargo, SERVO_CARGO_4, curSpeedRotation);
   }
-  if (currentMillis - dockingCompliteMills >= 2000) { // Через секунду проверяем покинула ли тележка папу
+  if (currentMillis - dockingCompliteMills >= 20000) { // Через секунду проверяем покинула ли тележка папу
     if (!cargoOnBorder)
       MSG_Docker[5] = '1';
   }

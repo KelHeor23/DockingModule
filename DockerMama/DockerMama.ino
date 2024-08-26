@@ -50,6 +50,7 @@ Servo servoRightHook;   // Серва на правом крюке
 Servo servoLeftHook;    // Серва на левом крюке
 bool rightHookActive = 0;          // Правый крюк нажат
 bool leftHookActive = 0;           // Левый крюк нажат
+bool hooksIsLock = 0;
 
 int hookStartPosition = 100;
 
@@ -67,6 +68,16 @@ int curSpeedRotation = minWidthPulseRotationCW;         // Текущая ско
 int speedInterval = 500;          // Интервал увеличения скорости вращения серво. мс
 unsigned long previousMillis = 0; // Всомогательная переменная для таймера
 //--------------------------------------------------------------------------------------
+
+void servoSetSpeed(Servo &servo, byte address, int speed){
+  servo.attach(address);
+  servo.writeMicroseconds(speed);
+}
+
+void servoStop(Servo &servo){
+  servo.writeMicroseconds(widthPulseStop);
+  servo.detach();
+}
 
 void setup() {
   pinMode(2, OUTPUT);
@@ -113,8 +124,8 @@ void receiveEvent(int howMany){    // Функция для чтения соо�
       Wire.read();
     i++;
   }
-  Serial.print("Read: ");
-  printMsg();
+  //Serial.print("Read: ");
+  //printMsg();
 }
  
 void requestEvent(){    // Функция для записи данных в сообщение
@@ -134,14 +145,18 @@ void requestEvent(){    // Функция для записи данных в с
 }
 
 inline void lockingHooks(){ // Функция закрытия крюков
+  if (!hooksIsLock) {
     if (rightHookActive)    
       servoRightHook.write(rightHookLockPosition);   
-      delay(100); 
+    delay(100); 
     if (leftHookActive)    
       servoLeftHook.write(leftHookLockPosition); 
-      delay(100);   
+    delay(100);   
     if (rightHookActive && leftHookActive)    
-      MSG_Docker[3] = '1';    
+      hooksIsLock = 1;
+  } else {
+    MSG_Docker[3] = '1';
+  }
 }
 
 inline void cargoTransferBegin() { // Функция передачи тележки
@@ -165,7 +180,7 @@ inline void cargoTransferEnding(){  // Функция завершения пе�
   if (cargoAtHome){
     cargoMove = 0;
     MSG_Docker[6] = '1';
-    servoCargo.writeMicroseconds(widthPulseStop);
+    servoStop(servoCargo);
   }  
 }
 
@@ -186,9 +201,9 @@ void docking(){         // Функция стыковки
 
 void rast(){            // Функция прерывания стыковки   
   if (MSG_Docker[3] == '1'){
-    servoRightHook.write(rightHookStartPosition);
+    servoRightHook.write(hookStartPosition);
     delay(100);
-    servoLeftHook.write(leftHookStartPosition);
+    servoLeftHook.write(hookStartPosition);
     delay(100);
     MSG_Docker[3] = '0';
   } else {
@@ -205,22 +220,23 @@ void rast(){            // Функция прерывания стыковки
       if (!firstIn){
         unsigned long currentMillis = millis();
         if (currentMillis - previousMillis >= 500){
-          servoCargo.writeMicroseconds(widthPulseStop);     
+          servoStop(servoCargo);   
           cargoMove = 0;
           firstIn = 1;
         }
       }
     } else
-      servoCargo.writeMicroseconds(widthPulseStop); 
+      servoStop(servoCargo);
   } 
 }
 
 void scanUndocking(){  // Сканирование концевиков при расстыковке 
-  if (analogRead(CARGO_ON_BORDER_A3) > 600)    
+  if (analogRead(CARGO_ON_BORDER_A3) < 600)    
     cargoOnBorder = 1;
   else
     cargoOnBorder = 0;
-  if (analogRead(CARGO_AT_HOME_A6) > 600)
+    
+  if (analogRead(CARGO_AT_HOME_A6) < 600)
     cargoAtHome = 1;
   else
     cargoAtHome = 0;  
@@ -231,13 +247,13 @@ void scanDocking(){ // Сканирование концевиков при ст
     rightHookActive = digitalRead(RIGHT_HOOK_ACTIVE_8);       // Правый крюк нажат
     leftHookActive  = digitalRead(LEFT_HOOK_ACTIVE_9);        // Левый крюк нажат
   } else if (MSG_Docker[4] == '1'){
-    if (analogRead(CARGO_ON_BORDER_A3) > 600){    
+    if (analogRead(CARGO_ON_BORDER_A3) < 600){    
       cargoOnBorder = 1;
       cargoMove = 1;
     }
     else
       cargoOnBorder = 0;
-    if (analogRead(CARGO_AT_HOME_A6) > 600)
+    if (analogRead(CARGO_AT_HOME_A6) < 600)
       cargoAtHome = 1;
     else
       cargoAtHome = 0;
