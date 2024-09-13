@@ -96,9 +96,6 @@ void setup() {
   pinMode(5, OUTPUT);
   pinMode(RIGHT_HOOK_ACTIVE_8, INPUT);        // Правый крюк нажат
   pinMode(LEFT_HOOK_ACTIVE_9, INPUT);         // Левый крюк нажат
-
-  lcd.init();                       //  Инициируем работу с LCD дисплеем
-  lcd.backlight();                  //  Включаем подсветку LCD дисплея
   
   Serial.begin(9600);
   delay(200);
