@@ -1,6 +1,9 @@
 #ifndef DATAEXCHANGE_HPP
 #define DATAEXCHANGE_HPP
 
+constexpr char BEGIN_MSG_BYTE = '8';
+constexpr char END_MSG_BYTE = '9';
+
 class DataExchange {
 public:
   DataExchange(size_t size, uint8_t cnt = 3, size_t uartSpeed = 57600);

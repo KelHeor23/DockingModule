@@ -9,24 +9,31 @@ String moduleID = "Mama";
 
 #include "DataExchange.hpp"
 
-String MSG_Docker = "0000000";
+String MSG_read = "0000000";
+String MSG_send = MSG_read;
 DataExchange *dataExchange;
 
 void setup() {
   // put your setup code here, to run once:
-  dataExchange = new DataExchange(MSG_Docker.length());
+  dataExchange = new DataExchange(MSG_send.length());
 }
 
 void loop() {
   // put your main code here, to run repeatedly:
   #if IS_PAPA
-  MSG_Docker[0] = '1';
-  MSG_Docker[6] = '1';
+  MSG_send[0] = '1';  
+  MSG_send[6] = '1';
+  dataExchange->sendMsg(MSG_send);
+  dataExchange->readMsg(MSG_read);  
+  #else
+  MSG_send[1] = '1';
+  MSG_send[2] = '1';
+  MSG_send[3] = '1';
+  MSG_send[4] = '1';
+  MSG_send[5] = '1';
+  dataExchange->readMsg(MSG_read);  
+  dataExchange->sendMsg(MSG_send);
   #endif
-
-  dataExchange->readMsg(MSG_Docker); 
-
-  dataExchange->sendMsg(MSG_Docker);
 
   delay(2000);
 }
