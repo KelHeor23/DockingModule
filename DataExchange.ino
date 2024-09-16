@@ -26,7 +26,7 @@ void DataExchange::readMsg(String &str){
     for (size_t i = 0; i < msgSize - 1; i++) msg[i] = msg[i + 1];
     msg[msgSize - 1] = Serial.read();
     if (msg[0] == BEGIN_MSG_BYTE && msg[msgSize - 1] == END_MSG_BYTE) { // пришло полное сообщение      
-      str = msg.substring(2, 2 + str.length()).c_str();      // Копирование результирующего сообщения
+      str = msg.substring(2, 2 + str.length()).c_str();      // Копирование результирующего сообщения.
       #if IS_TEST
       lcd.setCursor(0,0);
       lcd.print("Read msg. " + moduleID);
