@@ -1,33 +1,32 @@
-#define IS_PAPA 1 // 1 - версия для папы, 0 - версия для мамы
 #define IS_TEST 1 // 1 - тестовая, 0 - релизная (в частности, для работы с LCD)
 
-#include "DataExchange.hpp"
+#include "DockerMama.hpp"
+#include "DockerPapa.hpp"
 
-String MSG_read = "0000000";
-String MSG_send = MSG_read;
-DataExchange *dataExchange;
+constexpr int isPapa = 1; // 1 - папа, 0 - мама. ВРЕМЕНОЕ РЕШЕНИЕ!
+
+DockerDrones *docker;
 
 void setup() {
-  // put your setup code here, to run once:
-  dataExchange = new DataExchange(MSG_send.length());
+  switch (isPapa){
+    case 0:
+      docker = new DockerMama();
+      break;
+    case 1:
+      docker = new DockerPapa();
+      break;
+    default:
+      docker = new DockerPapa();
+      break;
+  }
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
-  #if IS_PAPA
-  MSG_send[0] = '1';  
-  MSG_send[6] = '1';
-  dataExchange->sendMsg(MSG_send);
-  dataExchange->readMsg(MSG_read);  
-  #else
-  MSG_send[1] = '1';
-  MSG_send[2] = '1';
-  MSG_send[3] = '1';
-  MSG_send[4] = '1';
-  MSG_send[5] = '1';
-  dataExchange->readMsg(MSG_read);  
-  dataExchange->sendMsg(MSG_send);
-  #endif
-
-  delay(2000);
+  if (analogRead(START_A7) > 600){
+    docker->scanDocking();
+    docker->docking();    
+  } else {
+    docker->scanUndocking();
+    docker->undocking();
+  }
 }

@@ -3,6 +3,7 @@
 
 DockerPapa::DockerPapa(){
   moduleID = "Papa";
+  dataExchange->setModuleID(moduleID);
 
   pinMode(2, OUTPUT);
   pinMode(3, OUTPUT);

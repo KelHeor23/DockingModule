@@ -3,6 +3,7 @@
 
 DockerMama::DockerMama(){
   moduleID = "Mama";
+  dataExchange->setModuleID(moduleID);
 
   pinMode(2, OUTPUT);
   pinMode(3, OUTPUT);
