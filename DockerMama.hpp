@@ -21,6 +21,8 @@ private:
 private:
   bool hooksIsLock = false;   // Признак что оба крюка закрыты
   bool cargoMove   = false;   // Признак, что тележка находится на дроне, но не зафиксирована
+  bool cargoOnBorder  = 0;    // Телега пересекла границу. Пришла
+  bool cargoAtHome    = 0;    // Телега зафиксировалась.   Признак окончания передачи
 };
 
 #endif

@@ -10,6 +10,7 @@ DataExchange::DataExchange(size_t size, uint8_t cnt = 3, size_t uartSpeed = 5760
   lcd.init();                       //  Инициируем работу с LCD дисплеем
   lcd.backlight();                  //  Включаем подсветку LCD дисплея
   #endif
+  
   msgSize = size + 3; // Три дополнительных байта на начальный и завершающий символ + байт для количества сообщений
   cntMsg = cnt;
   Serial.begin(uartSpeed);
