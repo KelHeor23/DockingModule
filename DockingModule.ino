@@ -1,12 +1,6 @@
 #define IS_PAPA 1 // 1 - версия для папы, 0 - версия для мамы
 #define IS_TEST 1 // 1 - тестовая, 0 - релизная (в частности, для работы с LCD)
 
-#if IS_PAPA
-String moduleID = "Papa";
-#else
-String moduleID = "Mama";
-#endif
-
 #include "DataExchange.hpp"
 
 String MSG_read = "0000000";
