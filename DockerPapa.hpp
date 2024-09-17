@@ -6,11 +6,19 @@
 class DockerPapa : public DockerDrones
 {
 public:
-  DockerPapa();
+
+  DockerPapa(){
+    dataExchange = new DataExchange(MSG_mama.length(), MSG_papa.length());
+  }
+  ~DockerPapa(){
+    delete dataExchange;
+  }
+
   void docking()        override; // Функция стыковки
   void undocking()      override; // Функция расстыковки
   void scanDocking()    override; // Функция сканирования концевиков при стыковке
   void scanUndocking()  override; // Функция сканирования концевиков при расстыковке
+  bool isReady()        override; // Функия проверки готовности
 private:
   void rodExtension();          // Функция выдвижения штанги
   void rodRetracting();         // Функция подтягивания штанги, для стягивания дронов

@@ -14,9 +14,9 @@ public:
   };
   
 private:
-  String msg;           // Буффер для приема и отправки сообщений
-  String msg_out;
-  uint8_t msgSize = 0;
+  String msg_read;       // Буффер для приема
+  String msg_send;       // Буффер для отправки сообщения
+
   uint8_t cntMsg = 0;   // сколько копий сообщения будет отправляться
 
   String moduleID = "";

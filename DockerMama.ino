@@ -138,3 +138,7 @@ void DockerMama::scanDocking(){ // Сканирование концевиков
       cargoAtHome = 0;
   }
 }
+
+bool DockerMama::isReady() {
+  return ready && MSG_papa[0] == '1'; // Была дана команда о начале, нет отказов в работе и папа готов 
+}

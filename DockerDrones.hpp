@@ -21,16 +21,11 @@ namespace Serv {
 
 class DockerDrones {
 public:
-  DockerDrones() {
-    dataExchange = new DataExchange(MSG_read.length());
-  };
-  ~DockerDrones(){
-    delete dataExchange;
-  }
   virtual void docking() = 0;       // Функция стыковки
   virtual void undocking() = 0;     // Функция расстыковки
   virtual void scanDocking() = 0;   // Функция сканирования концевиков при стыковке
   virtual void scanUndocking() = 0; // Функция сканирования концевиков при расстыковке
+  virtual bool isReady() = 0;       // Функия проверки готовности
 
   Servo servoRod;                   // Серва вращения стрелы
   Servo servoCargo;                 // Серва вращения телеги  
@@ -39,10 +34,26 @@ public:
 
   String moduleID;                  // Текстовое обозначение модуля
 
-  String MSG_read = "0000000";      // Прочитанное сообщение
-  String MSG_send = MSG_read;       // Отправленное сообщение
+/*
+  MSG_mama
+  0 - готовность
+  1 - хуки закрылись
+  2 - телега пришла к маме
+*/
+  String MSG_mama = "000";          // Сообщение отправленное от мамы
 
-  DataExchange *dataExchange;        // Механизм обмена сообщениями
+/*
+  MSG_papa
+  0 - готовность
+  1 - стрела выдвинулась
+  2 - дроны стянулись
+  3 - телега покинула папу
+*/
+  String MSG_papa = "0000";         // Сообщение отправленное от папы
+
+  DataExchange *dataExchange;       // Механизм обмена сообщениями
+
+  bool ready = true;              // Флаг готовности. При ошибке, он опустится
 };
 
 #endif

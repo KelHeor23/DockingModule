@@ -6,12 +6,20 @@
 class DockerMama : public DockerDrones
 {
 public:
-  DockerMama();
+
+  DockerMama(){
+    dataExchange = new DataExchange(MSG_papa.length(), MSG_mama.length());
+  }
+  ~DockerMama(){
+    delete dataExchange;
+  }
+
   void docking()        override; // Функция стыковки
   void undocking()      override; // Функция расстыковки
   void scanDocking()    override; // Функция сканирования концевиков при стыковке
   void scanUndocking()  override; // Функция сканирования концевиков при расстыковке
-
+  bool isReady()        override; // Функия проверки готовности
+  
 private:
   void lockingHooks();            // Функция закрытия крюков
   void cargoTransferBegin();      // Функция передачи тележки

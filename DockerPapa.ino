@@ -18,7 +18,7 @@ inline void DockerPapa::rodExtension()  { //  Функция выдвижени�
     Serv::servoSetSpeed(servoRod, SERVO_ROD_5, velocityCW);
   } else {  
     Serv::servoStop(servoRod);
-    MSG_Docker[2] = '1';  
+    MSG_send[2] = '1';  
   }
 }
 
@@ -27,7 +27,7 @@ inline void DockerPapa::rodRetracting(){  // Функция подтягиван
     Serv::servoSetSpeed(servoRod, SERVO_ROD_5, velocityCCW);  // задвигаю штангу
   } else {
     Serv::servoStop(servoRod);
-    MSG_Docker[4] = '1';
+    MSG_send[4] = '1';
     dockingCompliteMills = millis();
   }
 }
@@ -42,7 +42,7 @@ inline void DockerPapa::cargoTransfer() { // Функция передачи т�
   }
   if (currentMillis - dockingCompliteMills >= 20000) { // Через секунду проверяем покинула ли тележка папу
     if (!cargoOnBorder)
-      MSG_Docker[5] = '1';
+      MSG_send[5] = '1';
   }
 }
 
@@ -160,4 +160,8 @@ void DockerPapa::scanUndocking(){
     else
       cargoAtHome = 0;
   }
+}
+
+bool DockerPapa::isReady() {
+  return ready && MSG_mama[0] == '1'; // Была дана команда о начале, нет отказов в работе и мама готова
 }
