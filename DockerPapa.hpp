@@ -6,13 +6,8 @@
 class DockerPapa : public DockerDrones
 {
 public:
-
-  DockerPapa(){
-    dataExchange = new DataExchange(MSG_mama.length(), MSG_papa.length());
-  }
-  ~DockerPapa(){
-    delete dataExchange;
-  }
+  DockerPapa();
+  ~DockerPapa();
 
   void docking()        override; // Функция стыковки
   void undocking()      override; // Функция расстыковки

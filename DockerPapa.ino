@@ -11,6 +11,12 @@ DockerPapa::DockerPapa(){
   pinMode(5, OUTPUT);
   pinMode(RIGHT_HOOK_ACTIVE_8, INPUT);        // Правый крюк нажат
   pinMode(LEFT_HOOK_ACTIVE_9, INPUT);         // Левый крюк нажат
+
+  dataExchange = new DataExchange(MSG_mama.length(), MSG_papa.length());
+}
+
+DockerPapa::~DockerPapa(){
+  delete dataExchange;
 }
 
 inline void DockerPapa::rodExtension()  { //  Функция выдвижения штанги
@@ -18,7 +24,7 @@ inline void DockerPapa::rodExtension()  { //  Функция выдвижени�
     Serv::servoSetSpeed(servoRod, SERVO_ROD_5, velocityCW);
   } else {  
     Serv::servoStop(servoRod);
-    MSG_send[2] = '1';  
+    MSG_papa[1] = '1';  
   }
 }
 
@@ -27,7 +33,7 @@ inline void DockerPapa::rodRetracting(){  // Функция подтягиван
     Serv::servoSetSpeed(servoRod, SERVO_ROD_5, velocityCCW);  // задвигаю штангу
   } else {
     Serv::servoStop(servoRod);
-    MSG_send[4] = '1';
+    MSG_papa[2] = '1';
     dockingCompliteMills = millis();
   }
 }
@@ -42,7 +48,7 @@ inline void DockerPapa::cargoTransfer() { // Функция передачи т�
   }
   if (currentMillis - dockingCompliteMills >= 20000) { // Через секунду проверяем покинула ли тележка папу
     if (!cargoOnBorder)
-      MSG_send[5] = '1';
+      MSG_papa[3] = '1';
   }
 }
 
@@ -61,37 +67,37 @@ inline void DockerPapa::transferStoping() { // Функция окончател
 }
 
 void DockerPapa::docking(){         // Функция стыковки
-  if (MSG_Docker[2] == '0')  // Пока не завершена работа со штангой
+  if (MSG_papa[1] == '0')  // Пока не завершена работа со штангой
     rodExtension();    
-  else if (MSG_Docker[3] == '1' && MSG_Docker[4] == '0') // Пока стыковки полностью не завершена
+  else if (MSG_mama[1] == '1' && MSG_papa[2] == '0') // Пока стыковки полностью не завершена
     rodRetracting();      
-  else if (MSG_Docker[4] == '1' && MSG_Docker[5] == '0')
+  else if (MSG_papa[2] == '1' && MSG_papa[3] == '0')
     cargoTransfer();
-  else if (MSG_Docker[5] == '1' && MSG_Docker[6] == '0')
+  else if (MSG_papa[3] == '1' && MSG_mama[2] == '0')
     cargoTransferEnding();
-  else if (MSG_Docker[6] == '1')
+  else if (MSG_mama[2] == '1')
     transferStoping();
 }
 
 void DockerPapa::undocking(){
-  if (MSG_Docker[4] == '1'){    // Дроны сцепились
-    if (!rodIsExtended && MSG_Docker[3] == '1'){ // Пока штанга не выдвинута полностью и крюки закрыты
+  if (MSG_papa[2] == '1'){    // Дроны сцепились
+    if (!rodIsExtended && MSG_mama[1] == '1'){ // Пока штанга не выдвинута полностью и крюки закрыты
       Serv::servoSetSpeed(servoRod, SERVO_ROD_5, velocityCW);
     } else {
-      if (MSG_Docker[3] == '1')   // Ждем пока крюки не расцепятся 
+      if (MSG_mama[1] == '1')   // Ждем пока крюки не расцепятся 
         Serv::servoStop(servoRod);
       else {
         if (!rodIsRetracted)
           Serv::servoSetSpeed(servoRod, SERVO_ROD_5, velocityCCW);
         else{
           Serv::servoStop(servoRod);
-          MSG_Docker[4] = '0';
+          MSG_papa[2] = '0';
         }
       } 
     }
   } else {
-    if (MSG_Docker[5] == '1')
-      MSG_Docker[5] = '0';
+    if (MSG_papa[3] == '1')
+      MSG_papa[3] = '0';
     else {
       if (cargoOnBorder)
         Serv::servoSetSpeed(servoCargo, SERVO_CARGO_4, velocityCW);
@@ -99,12 +105,12 @@ void DockerPapa::undocking(){
         Serv::servoStop(servoCargo);
     }
 
-    if (MSG_Docker[2] == '1'){
+    if (MSG_papa[1] == '1'){
       if (!rodIsRetracted){
         Serv::servoSetSpeed(servoRod, SERVO_ROD_5, velocityCCW);
       } else {
         Serv::servoStop(servoRod);
-        MSG_Docker[2] = '0';
+        MSG_papa[1] = '0';
       }
     }
   }
@@ -112,7 +118,7 @@ void DockerPapa::undocking(){
 }
 
 void DockerPapa::scanDocking(){
-  if (MSG_Docker[2] == '0'){ // Пока не завершена работа со штангой
+  if (MSG_papa[1] == '0'){ // Пока не завершена работа со штангой
     if (analogRead(ROD_IS_RETRACTED_A2) > 600)
       rodIsRetracted = 1;
     else
@@ -121,26 +127,25 @@ void DockerPapa::scanDocking(){
       rodIsExtended = 1;
     else
       rodIsExtended = 0;
-  } else if (MSG_Docker[3] == '1' && MSG_Docker[4] == '0') {
+  } else if (MSG_mama[1] == '1' && MSG_papa[2] == '0') {
     if (analogRead(DOCKING_COMPLETED_A0) > 600)
       dockingCompleted = 1;
     else
       dockingCompleted = 0;
   } 
-  //if (MSG_Docker[4] == '1') {
-    if (analogRead(CARGO_ON_BORDER_A3) < 1000)
-      cargoOnBorder = 1;
-    else
-      cargoOnBorder = 0;
-    if (analogRead(CARGO_AT_HOME_A6) < 1000)
-      cargoAtHome = 1;
-    else
-      cargoAtHome = 0;
-  //}
+
+  if (analogRead(CARGO_ON_BORDER_A3) < 1000)
+    cargoOnBorder = 1;
+  else
+    cargoOnBorder = 0;
+  if (analogRead(CARGO_AT_HOME_A6) < 1000)
+    cargoAtHome = 1;
+  else
+    cargoAtHome = 0;
 }
 
 void DockerPapa::scanUndocking(){
-  if (MSG_Docker[2] == '1') {
+  if (MSG_papa[1] == '1') {
     if (analogRead(ROD_IS_RETRACTED_A2) > 600)
       rodIsRetracted = 1;
     else
@@ -150,7 +155,7 @@ void DockerPapa::scanUndocking(){
     else
       rodIsExtended = 0;
   }
-  if (MSG_Docker[4] == '1'){ // Телега не дом но и не покинула
+  if (MSG_papa[2] == '1'){ // Телега не дом но и не покинула
     if (analogRead(CARGO_ON_BORDER_A3) < 1000)
       cargoOnBorder = 1;
     else

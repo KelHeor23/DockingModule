@@ -6,7 +6,7 @@ constexpr char END_MSG_BYTE = '9';
 
 class DataExchange {
 public:
-  DataExchange(size_t size, uint8_t cnt = 3, size_t uartSpeed = 57600);
+  DataExchange(size_t size_read, size_t size_send, uint8_t cnt = 3, size_t uartSpeed = 57600);
   void readMsg(String &str);
   void sendMsg(String &str);
   void setModuleID(String &str) {

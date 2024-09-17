@@ -21,6 +21,12 @@ DockerMama::DockerMama(){
   servoLeftHook.attach(SERVO_LEFT_HOOK_3);
   servoLeftHook.write(hookStartPosition);
   delay(100);
+
+  dataExchange = new DataExchange(MSG_papa.length(), MSG_mama.length());
+}
+
+DockerMama::~DockerMama(){
+  delete dataExchange;
 }
 
 inline void DockerMama::lockingHooks(){ // Функция закрытия крюков
@@ -34,7 +40,7 @@ inline void DockerMama::lockingHooks(){ // Функция закрытия кр�
     if (rightHookActive && leftHookActive)    
       hooksIsLock = 1;
   } else {
-    MSG_Docker[3] = '1';
+    MSG_mama[1] = '1';
   }
 }
 
@@ -58,7 +64,7 @@ inline void DockerMama::cargoTransferEnding(){  // Функция заверше
   }
   if (cargoAtHome){
     cargoMove = 0;
-    MSG_Docker[6] = '1';
+    MSG_mama[2] = '1';
     Serv::servoStop(servoCargo);
   }  
 }
@@ -68,26 +74,26 @@ inline void DockerMama::transferStoping() { // Функция окончател
 }
 
 void DockerMama::docking(){         // Функция стыковки
-  if (MSG_Docker[2] == '1' && MSG_Docker[3] == '0')   // Работа со штангой завершена работаем с крюками
+  if (MSG_papa[1] == '1' && MSG_mama[1] == '0')   // Работа со штангой завершена работаем с крюками
     lockingHooks();
-  else  if (MSG_Docker[4] == '1' && MSG_Docker[5] == '0')  // Стыковка закончилась, готовлю серво
+  else  if (MSG_papa[2] == '1' && MSG_papa[3] == '0')  // Стыковка закончилась, готовлю серво
     cargoTransferBegin();
-  else if (MSG_Docker[5] == '1' && MSG_Docker[6] == '0') // Тележка пересекла границу
+  else if (MSG_papa[3] == '1' && MSG_mama[2] == '0') // Тележка пересекла границу
     cargoTransferEnding();
-  else if (MSG_Docker[6] == '1')
+  else if (MSG_mama[2] == '1')
     transferStoping();
 }
 
 void DockerMama::undocking(){            // Функция прерывания стыковки   
-  if (MSG_Docker[3] == '1'){
+  if (MSG_mama[1] == '1'){
     servoRightHook.write(hookStartPosition);
     delay(100);
     servoLeftHook.write(hookStartPosition);
     delay(100);
-    MSG_Docker[3] = '0';
+    MSG_mama[1] = '0';
   } else {
-    if (MSG_Docker[6] == '1') // Телега уже зафиксировалась, можно забить
-      MSG_Docker[6] = '0';
+    if (MSG_mama[2] == '1') // Телега уже зафиксировалась, можно забить
+      MSG_mama[2] = '0';
 
     if (cargoMove) {  // Телега зашла, но не на месте. Избавься от нее
       servoCargo.writeMicroseconds(maxWidthPulseRotationCCW);
@@ -122,10 +128,10 @@ void DockerMama::scanUndocking(){  // Сканирование концевик�
 }
 
 void DockerMama::scanDocking(){ // Сканирование концевиков при стыковке
-  if (MSG_Docker[2] == '1' && MSG_Docker[3] == '0'){   // Работа со штангой завершена работаем с крюками
+  if (MSG_papa[1] == '1' && MSG_mama[1] == '0'){   // Работа со штангой завершена работаем с крюками
     rightHookActive = digitalRead(RIGHT_HOOK_ACTIVE_8);       // Правый крюк нажат
     leftHookActive  = digitalRead(LEFT_HOOK_ACTIVE_9);        // Левый крюк нажат
-  } else if (MSG_Docker[4] == '1'){
+  } else if (MSG_papa[2] == '1'){
     if (analogRead(CARGO_ON_BORDER_A3) < 600){    
       cargoOnBorder = 1;
       cargoMove = 1;
